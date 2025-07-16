@@ -7,38 +7,44 @@
     "dns": {
         "servers": [
             {
-                "tag": "dns_proxy",
-                "address": "tls://1.1.1.1",
-                "address_resolver": "dns_resolver"
+                "type": "h3",
+                "server": "1.1.1.1",
+                "tag": "dns_proxy"
             },
             {
-                "tag": "dns_direct",
-                "address": "h3://dns.alidns.com/dns-query",
-                "address_resolver": "dns_resolver",
-                "detour": "DIRECT"
+                "type": "h3",
+                "server": "223.5.5.5",
+                "tag": "dns_direct"
             },
             {
                 "tag": "dns_fakeip",
-                "address": "fakeip"
+                "type": "fakeip",
+                "inet4_range": "198.18.0.0/15",
+                "inet6_range": "fc00::/18"
             },
             {
                 "tag": "dns_resolver",
-                "address": "223.5.5.5",
-                "detour": "DIRECT"
+                "type": "udp",
+                "server": "223.5.5.5"
             },
             {
                 "tag": "block",
-                "address": "rcode://success"
+                "type": "predefined",
+                "responses": [
+                    {
+                        "rcode": "REFUSED"
+                    }
+                ]
             }
         ],
         "rules": [
             {
                 "rule_set": "geosite-category-ads-all",
-                "server": "block",
-                "disable_cache": true
+                "action": "reject"
             },
             {
                 "rule_set": "geosite-geolocation-!cn",
+                "action": "route",
                 "query_type": [
                     "A",
                     "AAAA"
@@ -48,15 +54,17 @@
             {
                 "rule_set": "geosite-geolocation-!cn",
                 "server": "dns_proxy"
+            },
+            {
+                "query_type": [
+                    "A",
+                    "AAAA"
+                ],
+                "server": "fakeip"
             }
         ],
-        "final": "dns_direct",
-        "independent_cache": true,
-        "fakeip": {
-            "enabled": true,
-            "inet6_range": "fc00::/18",
-            "inet4_range": "198.18.0.0/15"
-        }
+        "final": "dns_proxy",
+        "independent_cache": true
     },
     "ntp": {
         "enabled": true,
@@ -108,9 +116,6 @@
                 "download_detour": "proxy"
             }
         ],
-        "default_domain_resolver": {
-            "server": "dns_resolver"
-        },
         "auto_detect_interface": true
     },
     "experimental": {
