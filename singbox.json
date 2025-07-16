@@ -19,10 +19,6 @@
                 "tag": "dns_fakeip"
             },
             {
-                "address": "udp://223.5.5.5",
-                "tag": "dns_direct"
-            },
-            {
                 "tag": "block",
                 "address": "rcode://refused"
             }
