@@ -8,35 +8,27 @@
         "servers": [
             {
                 "tag": "dns_proxy",
-                "type": "tls",
-                "server": "1.1.1.1"
+                "address": "tls://1.1.1.1",
+                "address_resolver": "dns_resolver"
             },
             {
                 "tag": "dns_direct",
-                "type": "h3",
-                "server": "dns.alidns.com",
+                "address": "h3://dns.alidns.com/dns-query",
+                "address_resolver": "dns_resolver",
                 "detour": "DIRECT"
             },
             {
                 "tag": "dns_fakeip",
-                "type": "fakeip",
-                "inet6_range": "fc00::/18",
-                "inet4_range": "198.18.0.0/15"
+                "address": "fakeip"
             },
             {
                 "tag": "dns_resolver",
-                "type": "udp",
-                "server": "223.5.5.5",
+                "address": "223.5.5.5",
                 "detour": "DIRECT"
             },
             {
                 "tag": "block",
-                "type": "predefined",
-                "responses": [
-                    {
-                        "rcode": "SUCCESS"
-                    }
-                ]
+                "address": "rcode://success"
             }
         ],
         "rules": [
@@ -59,7 +51,12 @@
             }
         ],
         "final": "dns_direct",
-        "independent_cache": true
+        "independent_cache": true,
+        "fakeip": {
+            "enabled": true,
+            "inet6_range": "fc00::/18",
+            "inet4_range": "198.18.0.0/15"
+        }
     },
     "ntp": {
         "enabled": true,
