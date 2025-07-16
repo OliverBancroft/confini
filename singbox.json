@@ -15,7 +15,6 @@
                 "tag": "dns_direct",
                 "type": "h3",
                 "server": "dns.alidns.com",
-                "domain_resolver": "dns_resolver",
                 "detour": "DIRECT"
             },
             {
