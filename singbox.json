@@ -29,24 +29,30 @@
                 "action": "reject"
             },
             {
-                "rule_set": "geosite-geolocation-!cn",
-                "action": "route",
+                "rule_set": "geosite-geolocation-cn",
+                "server": "local"
+            },
+            {
+                "type": "logical",
+                "mode": "and",
+                "rules": [
+                    {
+                        "rule_set": "geosite-geolocation-!cn",
+                        "invert": true
+                    },
+                    {
+                        "rule_set": "geoip-cn"
+                    }
+                ],
+                "server": "google",
+                "client_subnet": "114.114.114.114/24"
+            },
+            {
                 "query_type": [
                     "A",
                     "AAAA"
                 ],
                 "server": "dns_fakeip"
-            },
-            {
-                "rule_set": "geosite-geolocation-!cn",
-                "server": "dns_proxy"
-            },
-            {
-                "query_type": [
-                    "A",
-                    "AAAA"
-                ],
-                "server": "fakeip"
             }
         ],
         "final": "dns_proxy",
@@ -83,38 +89,68 @@
             "stack": "mixed"
         }
     ],
-    "outbounds": [],
+    "outbounds": [
+        {
+            "type": "direct",
+            "tag": "DIRECT"
+        }
+    ],
     "route": {
         "rules": [
             {
                 "action": "sniff"
             },
             {
-                "protocol": "dns",
+                "type": "logical",
+                "mode": "or",
+                "rules": [
+                    {
+                        "protocol": "dns"
+                    },
+                    {
+                        "port": 53
+                    }
+                ],
                 "action": "hijack-dns"
             },
             {
                 "ip_is_private": true,
-                "outbound": "direct"
+                "outbound": "DIRECT"
+            },
+            {
+                "type": "logical",
+                "mode": "or",
+                "rules": [
+                    {
+                        "port": 853
+                    },
+                    {
+                        "network": "udp",
+                        "port": 443
+                    },
+                    {
+                        "protocol": "stun"
+                    }
+                ],
+                "action": "reject"
             },
             {
                 "rule_set": "geosite-geolocation-cn",
-                "server": "local"
+                "outbound": "DIRECT"
             },
             {
                 "type": "logical",
                 "mode": "and",
                 "rules": [
                     {
-                        "rule_set": "geosite-geolocation-!cn",
-                        "invert": true
+                        "rule_set": "geoip-cn"
                     },
                     {
-                        "rule_set": "geoip-cn"
+                        "rule_set": "geosite-geolocation-!cn",
+                        "invert": true
                     }
                 ],
-                "server": "google",
-                "client_subnet": "114.114.114.114/24"
+                "outbound": "DIRECT"
             }
         ],
         "rule_set": [
